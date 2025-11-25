@@ -1,0 +1,33 @@
+name: Update Mixpanel Analytics
+
+on:
+  schedule:
+    - cron: "0 * * * *"     # runs every hour
+  workflow_dispatch:        # lets you run it manually
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Mixpanel fetch script
+        run: node fetch-mixpanel.js
+
+      - name: Commit updated data
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add mixpanel-data.json
+          git commit -m "Updated Mixpanel analytics" || echo "No changes to commit"
+          git push
